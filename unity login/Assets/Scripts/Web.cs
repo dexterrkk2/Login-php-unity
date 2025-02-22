@@ -8,7 +8,14 @@ public class Web : MonoBehaviour
 {
     void Start()
     {
-        
+    }
+    public void showUserItems(System.Action<string> CallBack)
+    {
+        StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitemids.php", Main.instance.userInfo.getUserID(), CallBack, true));
+    }
+    public void getitem(System.Action<string> CallBack, string itemId)
+    {
+        StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitem.php", itemId, CallBack, false));
     }
     public void getUsers()
     {
@@ -59,6 +66,45 @@ public class Web : MonoBehaviour
             }
         }
     }
+    IEnumerator GetItemIds(string uri, string userID, System.Action<string> CallBack, bool items)
+    {
+        Debug.Log("got items");
+        WWWForm form = new WWWForm();
+        if(items)
+        {
+            form.AddField("userID", userID);
+        }
+        else
+        {
+            form.AddField("itemID", userID);
+        }
+        //Debug.Log(userID);
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, form))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.Success:
+                    //Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    //Debug.Log(webRequest.downloadHandler.text);
+                    string jsonArray = webRequest.downloadHandler.text;
+                    CallBack(jsonArray);
+                    break;
+            }
+        }
+    }
     IEnumerator login(string username, string password, string url)
     {
         WWWForm form = new WWWForm();
@@ -75,6 +121,19 @@ public class Web : MonoBehaviour
             else
             {
                 Debug.Log(www.downloadHandler.text);
+                //Callback Function to get resulrs
+                string id = www.downloadHandler.text;
+                Main.instance.userInfo.setInfo(id, username, password);
+                if (id != "wrong creditinals" && id != "user does not exit")
+                {
+                    //LoginCorrect
+                    Main.instance.userProfile.SetActive(true);
+                    Main.instance.login.gameObject.SetActive(false);
+                }
+                else
+                {
+                    Debug.Log("try again");
+                }
             }
         }
     }
