@@ -17,6 +17,10 @@ public class Web : MonoBehaviour
     {
         StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitem.php", itemId, CallBack, false));
     }
+    public void sellItem( string userId, string itemId, string inventoryID)
+    {
+        StartCoroutine(SellItem("http://localhost/UnityBackendTutorial/SellItem.php",userId, itemId, inventoryID));
+    }
     public void getUsers()
     {
         StartCoroutine(GetRequest("http://localhost/UnityBackendTutorial/getUsers.php"));
@@ -97,10 +101,41 @@ public class Web : MonoBehaviour
                     Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
                     break;
                 case UnityWebRequest.Result.Success:
-                    //Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
-                    //Debug.Log(webRequest.downloadHandler.text);
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    Debug.Log(webRequest.downloadHandler.text);
                     string jsonArray = webRequest.downloadHandler.text;
                     CallBack(jsonArray);
+                    break;
+            }
+        }
+    }
+    IEnumerator SellItem(string uri, string userID, string itemID, string inventoryID)
+    {
+        //Debug.Log("got items");
+        WWWForm form = new WWWForm();
+        form.AddField("itemID", itemID);
+        form.AddField("userID",userID);
+        form.AddField("ID", inventoryID);
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, form))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+                    Debug.Log(webRequest.downloadHandler.text);
                     break;
             }
         }

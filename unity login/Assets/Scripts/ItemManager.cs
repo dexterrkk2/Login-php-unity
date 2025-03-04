@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using SimpleJSON;
-public class items : MonoBehaviour
+public class ItemManager : MonoBehaviour
 {
     Action<string> createItemsCallback;
     // Start is called before the first frame update
@@ -27,6 +27,7 @@ public class items : MonoBehaviour
         {
             bool isdone = false;
             string itemId = jsonArray[i].AsObject["itemID"];
+            string inventoryID = jsonArray[i].AsObject["ID"];
             JSONObject itemInfoJson = new JSONObject();
 
             Action<string> getItemInfoCallback = (itemInfo) => 
@@ -42,17 +43,31 @@ public class items : MonoBehaviour
             //wait for callback
             yield return new WaitUntil(() => isdone == true);
             //Debug.Log("got here");
-            GameObject item = Instantiate(Resources.Load("Prefabs/item") as GameObject);
-            item.transform.SetParent(transform);
-            item.transform.localScale = Vector3.one;
-            item.transform.localPosition = Vector3.zero;
+            GameObject itemObject = Instantiate(Resources.Load("Prefabs/item") as GameObject);
+            Item item = itemObject.AddComponent<Item>();
 
-            item.transform.Find("Name").GetComponent<Text>().text = itemInfoJson["name"];
-            item.transform.Find("Price").GetComponent<Text>().text = itemInfoJson["price"];
-            item.transform.Find("Description").GetComponent<Text>().text = itemInfoJson["description"];
+            item.ItemID = itemId;
+            item.ID = inventoryID;
+            
+            itemObject.transform.SetParent(transform);
+            itemObject.transform.localScale = Vector3.one;
+            itemObject.transform.localPosition = Vector3.zero;
 
+            itemObject.transform.Find("Name").GetComponent<Text>().text = itemInfoJson["name"];
+            itemObject.transform.Find("Price").GetComponent<Text>().text = itemInfoJson["price"];
+            itemObject.transform.Find("Description").GetComponent<Text>().text = itemInfoJson["description"];
 
-
+            //set sell button
+            itemObject.transform.Find("SellButton").GetComponent<Button>().onClick.AddListener(() =>
+            {
+                string userId = Main.instance.userInfo.getUserID();
+                string itemID = itemId;
+                string id = inventoryID;
+                GameObject self = itemObject;
+                //Debug.Log(id);
+                Main.instance.web.sellItem(userId, itemID, id);
+                Destroy(self);
+            });
         }
     }
     // Update is called once per frame

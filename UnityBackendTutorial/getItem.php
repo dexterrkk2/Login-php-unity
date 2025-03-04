@@ -1,14 +1,11 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "unity backend tutorial";
+require 'ConnectionSettings.php';
+
 
 //variables submitted
 //$loginUser = $_POST["loginUser"];
 //$loginPass = $_POST["loginPass"];
 // Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
 $itemID = $_POST["itemID"];
 // Check connection
 $sql = "SELECT name,description,price from items where id ='" .$itemID ."'";
