@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -8,26 +9,33 @@ public class Web : MonoBehaviour
 {
     void Start()
     {
+        getDate();
     }
     public void showUserItems(System.Action<string> CallBack)
     {
-        StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitemids.php", Main.instance.userInfo.getUserID(), CallBack, true));
+        //StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitemids.php", Main.instance.userInfo.getUserID(), CallBack, true));
+        StartCoroutine(GetItemIds("http://evolvegame.iceiy.com/getitemids.php", Main.instance.userInfo.getUserID(), CallBack, true));
     }
     public void getitem(System.Action<string> CallBack, string itemId)
     {
-        StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitem.php", itemId, CallBack, false));
+        //StartCoroutine(GetItemIds("http://localhost/UnityBackendTutorial/getitem.php", itemId, CallBack, false));
+        StartCoroutine(GetItemIds("http://evolvegame.iceiy.com/getitem.php", itemId, CallBack, false));
     }
     public void sellItem( string userId, string itemId, string inventoryID)
     {
-        StartCoroutine(SellItem("http://localhost/UnityBackendTutorial/SellItem.php",userId, itemId, inventoryID));
+        //StartCoroutine(SellItem("http://localhost/UnityBackendTutorial/SellItem.php",userId, itemId, inventoryID));
+        StartCoroutine(SellItem("http://evolvegame.iceiy.com/SellItem.php", userId, itemId, inventoryID));
     }
     public void getUsers()
     {
-        StartCoroutine(GetRequest("http://localhost/UnityBackendTutorial/getUsers.php"));
+        //StartCoroutine(GetRequest("http://localhost/UnityBackendTutorial/getUsers.php"));
+        StartCoroutine(GetRequest("http://evolvegame.iceiy.com/getUsers.php"));
     }
     public void getDate()
     {
-        StartCoroutine(GetRequest("http://localhost/UnityBackendTutorial/getDate.php"));
+        //StartCoroutine(GetRequest("http://localhost/UnityBackendTutorial/getDate.php"));
+        StartCoroutine(GetRequest("http://evolvegame.iceiy.com/getDate.php"));
+
     }
     public void registerUser(string username, string password, string confirmPassword)
     {
@@ -42,13 +50,26 @@ public class Web : MonoBehaviour
     }
     public void loginCall(string username, string password)
     {
-        StartCoroutine(login(username, password, "http://localhost/UnityBackendTutorial/login.php"));
+        //StartCoroutine(login(username, password, "http://localhost/UnityBackendTutorial/login.php"));
+        StartCoroutine(login(username, password, "http://evolvegame.iceiy.com/login.php"));
+    }
+    void aeonwebRequest(UnityWebRequest webRequest)
+    {
+        webRequest.SetRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7");
+        webRequest.SetRequestHeader("Accept-Encoding", "gzip, deflate");
+        webRequest.SetRequestHeader("Accept-Language", "en");
+        webRequest.SetRequestHeader("Cache-Control", "max-age=0");
+        webRequest.SetRequestHeader("Cookie", "__test=d4f16507ae75e677830d2f5a3f570eca");
+        webRequest.SetRequestHeader("Upgrade-Insecure-Requests", "1");
+        webRequest.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        webRequest.SetRequestHeader("Referer", "http://evolvegame.iceiy.com");
     }
     IEnumerator GetRequest(string uri)
     {
+
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
-            // Request and wait for the desired page.
+            aeonwebRequest(webRequest);
             yield return webRequest.SendWebRequest();
 
             string[] pages = uri.Split('/');
@@ -85,6 +106,7 @@ public class Web : MonoBehaviour
         //Debug.Log(userID);
         using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, form))
         {
+            aeonwebRequest(webRequest);
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
@@ -118,6 +140,7 @@ public class Web : MonoBehaviour
         form.AddField("ID", inventoryID);
         using (UnityWebRequest webRequest = UnityWebRequest.Post(uri, form))
         {
+            aeonwebRequest(webRequest);
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
@@ -147,6 +170,7 @@ public class Web : MonoBehaviour
         form.AddField("loginPass", password);
         using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
+            aeonwebRequest(www);
             yield return www.SendWebRequest();
 
             if (www.result != UnityWebRequest.Result.Success)
