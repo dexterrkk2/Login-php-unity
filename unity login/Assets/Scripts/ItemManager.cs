@@ -58,7 +58,9 @@ public class ItemManager : MonoBehaviour
             itemObject.transform.Find("Price").GetComponent<Text>().text = itemInfoJson["price"];
             itemObject.transform.Find("Description").GetComponent<Text>().text = itemInfoJson["description"];
 
-            byte[] bytes =ImageManager.Instance.imageLoad(itemId);
+            int imageVer = itemInfoJson["imgVer"].AsInt;
+
+            byte[] bytes =ImageManager.Instance.imageLoad(itemId, imageVer);
             if(bytes.Length == 0)
             {
                 Action<byte[]> getItemIconCallback = (downloadedBytes) =>
@@ -67,7 +69,8 @@ public class ItemManager : MonoBehaviour
 
                     //Debug.Log(itemInfo);
                     itemObject.transform.Find("Image").GetComponent<Image>().sprite = ImageManager.Instance.convertImage(downloadedBytes);
-                    ImageManager.Instance.imageSave(itemId, downloadedBytes);
+                    ImageManager.Instance.imageSave(itemId, downloadedBytes, imageVer);
+                    ImageManager.Instance.saveVersionJson();
                     //itemInfoJson = tempArray[0].AsObject;
                     //Debug.Log(itemInfoJson);
                 };
