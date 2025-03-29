@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using SimpleJSON;
+using UnityEngine.XR;
 public class ItemManager : MonoBehaviour
 {
     Action<string> createItemsCallback;
@@ -57,6 +58,26 @@ public class ItemManager : MonoBehaviour
             itemObject.transform.Find("Price").GetComponent<Text>().text = itemInfoJson["price"];
             itemObject.transform.Find("Description").GetComponent<Text>().text = itemInfoJson["description"];
 
+            byte[] bytes =ImageManager.Instance.imageLoad(itemId);
+            if(bytes.Length == 0)
+            {
+                Action<byte[]> getItemIconCallback = (downloadedBytes) =>
+                {
+                    //Debug.Log(webRequest.downloadHandler.data);
+
+                    //Debug.Log(itemInfo);
+                    itemObject.transform.Find("Image").GetComponent<Image>().sprite = ImageManager.Instance.convertImage(downloadedBytes);
+                    ImageManager.Instance.imageSave(itemId, downloadedBytes);
+                    //itemInfoJson = tempArray[0].AsObject;
+                    //Debug.Log(itemInfoJson);
+                };
+                Main.instance.web.getItemImage(itemId, getItemIconCallback);
+            }
+            //load from device
+            else
+            {
+                itemObject.transform.Find("Image").GetComponent<Image>().sprite = ImageManager.Instance.convertImage(bytes);
+            }
             //set sell button
             itemObject.transform.Find("SellButton").GetComponent<Button>().onClick.AddListener(() =>
             {

@@ -1,8 +1,8 @@
 <?php
-$servername = "sql100.iceiy.com";
-$username = "icei_38446382";
-$password = "YUio15781011*";
-$dbname = "icei_38446382_UnityBackEndTutorial";
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "unity backend tutorial";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 ?>
